@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Library Check-In Access</title>
+</head>
+<body>
+  <h2>🔒 Checking your network...</h2>
+  <p id="status">Please wait...</p>
+
+  <script>
+    fetch("https://ipinfo.io/json?token=2b2fdf42352e12")
+      .then(response => response.json())
+      .then(data => {
+        const userIP = data.ip;
+        const allowedIP = "123.45.67.89";  // Replace with your actual library IP
+
+        if (userIP === allowedIP) {
+          document.getElementById("status").innerText = "✅ Access granted. Redirecting...";
+          window.location.href = "https://docs.google.com/forms/YOUR_FORM_LINK";
+        } else {
+          document.getElementById("status").innerText = `❌ Access denied. You must be connected to the library Wi-Fi. Your IP: ${userIP}`;
+        }
+      })
+      .catch(error => {
+        document.getElementById("status").innerText = "⚠️ Could not check IP address. Try again.";
+        console.error("Error:", error);
+      });
+  </script>
+</body>
+</html>
