@@ -12,7 +12,7 @@
       .then(response => response.json())
       .then(data => {
         const userIP = data.ip;
-        const allowedIP = "112.208.11.129";  // Replace with your actual library IP
+        const allowedIP = "119.95.138.160";  // Replace with your actual library IP
 
         if (userIP === allowedIP) {
           document.getElementById("status").innerText = "✅ Access granted. Redirecting...";
