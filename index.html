@@ -1,30 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Library Check-In Access</title>
+  <title>Library Access</title>
+  <script>
+    const backendURL = "https://script.google.com/macros/s/AKfycbwQSrybeZEGdweUaAM3aPHaBdk8iNJZS-76EDy927w_o7foXqnptAIGzEg2x9FEzKXX/exec";
+    const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSd6RzA2UyXbGXh0q1GoZWghtDnbd26MWdA-jK6Q7VhzF7XLpg/viewform?usp=pp_url&entry.1588281017=%F0%9D%93%9B%E2%80%8B%F0%9D%96%8E%E2%80%8B%F0%9D%95%AD%E2%80%8B%EF%BC%B2%E2%80%8B%EF%BD%81%E2%80%8B%E2%9B%94%EF%B8%8F%E2%80%8B%F0%9D%97%BF%E2%80%8B%F0%9D%95%90%E2%80%8B%F0%9F%92%BE%E2%80%8B%E1%97%AA%E2%80%8B%E2%93%84%E2%80%8B%F0%9D%9F%B8%E2%80%8B%F0%9D%9F%A7%E2%80%8B_%E2%80%8B%F0%9F%8E%B2%E2%80%8B%F0%9D%93%95%E2%80%8B%EF%BD%97%E2%80%8B%F0%9D%9F%9F%E2%80%8B%F0%9F%9A%AB%E2%80%8B%F0%9D%95%92%E2%80%8B%C2%A7%E2%80%8B%EF%BC%98%E2%80%8B%E2%9C%A7%E2%80%8B%E2%9A%99%EF%B8%8F%E2%80%8B%F0%9D%93%9A";
+    const ipinfoToken = "2b2fdf42352e12";
+
+    async function checkAccess() {
+      const res = await fetch(`https://ipinfo.io/json?token=${ipinfoToken}`);
+      const data = await res.json();
+      const userIP = data.ip;
+
+      const backendRes = await fetch(backendURL);
+      const stored = await backendRes.json();
+
+      if (userIP === stored.allowedIP) {
+        window.location.href = formURL;
+      } else {
+        document.getElementById("message").innerText =
+          "❌ Access denied. You are not on the library Wi-Fi.";
+      }
+    }
+
+    async function updateIP() {
+      const secret = prompt("Enter admin key:");
+      if (!secret) return;
+
+      const res = await fetch(`https://ipinfo.io/json?token=${ipinfoToken}`);
+      const data = await res.json();
+      const ip = data.ip;
+
+      const updateURL = `${backendURL}?update=true&ip=${ip}&key=${encodeURIComponent(secret)}`;
+      const updateRes = await fetch(updateURL);
+      const result = await updateRes.text();
+
+      alert("📶 " + result);
+    }
+
+    window.onload = checkAccess;
+  </script>
 </head>
 <body>
-  <h2>🔒 Checking your network...</h2>
-  <p id="status">Please wait...</p>
-
-  <script>
-    fetch("https://ipinfo.io/json?token=2b2fdf42352e12")
-      .then(response => response.json())
-      .then(data => {
-        const userIP = data.ip;
-        const allowedIP = "119.95.138.160";  // Replace with your actual library IP
-
-        if (userIP === allowedIP) {
-          document.getElementById("status").innerText = "✅ Access granted. Redirecting...";
-          window.location.href = "https://docs.google.com/forms/d/e/1FAIpQLSd6RzA2UyXbGXh0q1GoZWghtDnbd26MWdA-jK6Q7VhzF7XLpg/viewform?usp=pp_url&entry.1588281017=%F0%9D%93%9B%E2%80%8B%F0%9D%96%8E%E2%80%8B%F0%9D%95%AD%E2%80%8B%EF%BC%B2%E2%80%8B%EF%BD%81%E2%80%8B%E2%9B%94%EF%B8%8F%E2%80%8B%F0%9D%97%BF%E2%80%8B%F0%9D%95%90%E2%80%8B%F0%9F%92%BE%E2%80%8B%E1%97%AA%E2%80%8B%E2%93%84%E2%80%8B%F0%9D%9F%B8%E2%80%8B%F0%9D%9F%A7%E2%80%8B_%E2%80%8B%F0%9F%8E%B2%E2%80%8B%F0%9D%93%95%E2%80%8B%EF%BD%97%E2%80%8B%F0%9D%9F%9F%E2%80%8B%F0%9F%9A%AB%E2%80%8B%F0%9D%95%92%E2%80%8B%C2%A7%E2%80%8B%EF%BC%98%E2%80%8B%E2%9C%A7%E2%80%8B%E2%9A%99%EF%B8%8F%E2%80%8B%F0%9D%93%9A";
-        } else {
-          document.getElementById("status").innerText = `❌ Access denied. You must be connected to the library Wi-Fi. Your IP: ${userIP}`;
-        }
-      })
-      .catch(error => {
-        document.getElementById("status").innerText = "⚠️ Could not check IP address. Try again.";
-        console.error("Error:", error);
-      });
-  </script>
+  <h2 id="message">🔒 Checking your network...</h2>
+  <button onclick="updateIP()">📶 Update IP (Admin)</button>
 </body>
 </html>
